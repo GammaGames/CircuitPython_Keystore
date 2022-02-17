@@ -16,19 +16,12 @@ Implementation Notes
 
 **Hardware:**
 
-.. todo:: Add links to any specific hardware product page(s), or category page(s).
-  Use unordered list & hyperlink rST inline format: "* `Link Text <url>`_"
+Tested with the RP2040 Feather
 
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
   https://circuitpython.org/downloads
-
-.. todo:: Uncomment or remove the Bus Device and/or the Register library dependencies
-  based on the library's use of either.
-
-# * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
-# * Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
 """
 
 import storage
@@ -38,7 +31,13 @@ import json
 
 
 class Keystore:
-    """"""
+    """The object that manages the file and attributes for the object
+
+    :param string filename: path of the keystore file. Default: `/.config`
+    :param microcontroller.Pin pin: connect this pin to ground to save the config to storage
+    :param boolean _debug: enable `print` debug information
+    :param kwargs: keys to store with their defaults
+    """
     def __init__(self, filename="/.config", pin=None, _debug=False, **kwargs):
         self._debug = _debug  # Use underscore to still allow users to store "debug"
         self._persistent = False
@@ -56,6 +55,15 @@ class Keystore:
 
         self._remount_storage()
         self._load()
+
+    @property
+    def is_persistent(self):
+        return self._persistent
+
+    @property
+    def is_dirty(self):
+        return self._dirty
+
 
     def _remount_storage(self):
         def _remount(ro):
