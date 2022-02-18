@@ -39,6 +39,7 @@ class Keystore:
     :param `boolean` _debug: enable `print` debug information
     :param **kwargs: keys with defaults
     """
+
     def __init__(self, filename="/.config", pin=None, _debug=False, **kwargs):
         self._debug = _debug
         self._persistent = False
@@ -65,12 +66,13 @@ class Keystore:
     def is_dirty(self):
         return self._dirty
 
-
     def _remount_storage(self):
         """
         Helper function that checks if a pin is connected to ground before remounting storage
         """
+
         def _remount(readonly):
+            """Small helper to de-duplicate code"""
             try:
                 storage.remount("/", readonly)
                 self._persistent = not readonly
@@ -82,7 +84,7 @@ class Keystore:
             self._print(
                 "https://learn.adafruit.com/circuitpython-essentials/circuitpython-storage"
             )
-            self._print("To bypass this check, pass the pin as `False`")
+            self._print("To bypass this check, pass the pin argument as `False`")
         elif self._storage_pin is False:
             _remount(False)
         else:
@@ -91,6 +93,9 @@ class Keystore:
             _remount(switch.value)
 
     def _print(self, *args):
+        """
+        Helper debug print
+        """
         if self._debug:
             print(*args)
 
@@ -147,7 +152,7 @@ class Keystore:
                 if key in self._default:
                     setattr(self, key, value)
                 else:
-                    del(self._store[key])
+                    del self._store[key]
         else:
             self._print(f"File does not exist: {self._filename}")
 
