@@ -1,4 +1,6 @@
-# SPDX-FileCopyrightText: 2017 Scott Shawcroft, written for Adafruit Industries
-# SPDX-FileCopyrightText: Copyright (c) 2022 Jesse Lieberg
-#
-# SPDX-License-Identifier: Unlicense
+from keystore import Keystore
+
+config = Keystore("/.conf", pin=False, foo="bar", baz=3)
+foo, bar = config.foo, config.baz
+
+config.print()
