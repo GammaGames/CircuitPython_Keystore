@@ -31,15 +31,16 @@ import json
 
 
 class Keystore:
-    """The object that manages the file and attributes for the object
+    """
+    The object that manages the file and attributes for the object
 
-    :param string filename: path of the keystore file. Default: `/.config`
-    :param microcontroller.Pin pin: connect this pin to ground to save the config to storage
-    :param boolean _debug: enable `print` debug information
-    :param kwargs: keys to store with their defaults
+    :param `str` filename: path of the keystore file. Default: `/.config`
+    :param `microcontroller.Pin` pin: connect this pin to ground to save the config to storage
+    :param `boolean` _debug: enable `print` debug information
+    :param **kwargs: keys with defaults
     """
     def __init__(self, filename="/.config", pin=None, _debug=False, **kwargs):
-        self._debug = _debug  # Use underscore to still allow users to store "debug"
+        self._debug = _debug
         self._persistent = False
         self._dirty = False
         self._filename = filename
@@ -66,10 +67,13 @@ class Keystore:
 
 
     def _remount_storage(self):
-        def _remount(ro):
+        """
+        Helper function that checks if a pin is connected to ground before remounting storage
+        """
+        def _remount(readonly):
             try:
-                storage.remount("/", ro)
-                self._persistent = not ro
+                storage.remount("/", readonly)
+                self._persistent = not readonly
             except:
                 self._print("Mounted via USB, not remounting storage")
 
@@ -91,12 +95,24 @@ class Keystore:
             print(*args)
 
     def set(self, **kwargs):
+        """
+        Set attributes in the key store.
+        You can also add non-default variables, though they will not be preserved
+        when the store has been loaded from storage.
+
+        :param **kwargs: keys with values
+        """
         for key, value in kwargs.items():
             self._store[key] = value
             setattr(self, key, value)
         self._dirty = True
 
     def remove(self, *args):
+        """
+        Remove attributes from the store
+
+        :param *args `str`: keys to remove
+        """
         for key in args:
             try:
                 del self._store[key]
@@ -106,6 +122,11 @@ class Keystore:
         self._dirty = True
 
     def save(self, **kwargs):
+        """
+        Save the file to storage (if persistent), with optional keys to set
+
+        :param **kwargs: keys to set before writing
+        """
         self.set(**kwargs)
         try:
             with open(self._filename, "w") as out_file:
@@ -116,6 +137,9 @@ class Keystore:
         self._dirty = False
 
     def _load(self):
+        """
+        Helper function to read and process the JSON file upon class instantiation
+        """
         if self._file in os.listdir(self._path):
             with open(self._filename, "r") as in_file:
                 self._store = json.loads(in_file.read())
@@ -128,6 +152,9 @@ class Keystore:
             self._print(f"File does not exist: {self._filename}")
 
     def print(self):
+        """
+        Print debug information to console
+        """
         print(f"Filename: {self._filename}")
         for key, value in self._store.items():
             print(f"{key}: {value}")
